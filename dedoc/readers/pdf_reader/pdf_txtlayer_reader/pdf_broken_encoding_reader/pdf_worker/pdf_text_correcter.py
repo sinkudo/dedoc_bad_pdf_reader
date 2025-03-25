@@ -1,22 +1,12 @@
-import configparser
-import os
 import re
-import warnings
-
 from typing import List
 
-from Levenshtein import distance
-# import editdistance as editdistance
 import numpy as np
+from Levenshtein import distance
 
 from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdf_broken_encoding_reader import config
 
-# config = configparser.ConfigParser()
-# config_p = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../config.ini')
-# config.read(config_p, encoding='utf-8')
-# convertdictrus = eval(config.get("DEFAULT", "convert_chars_to_rus"))
 convertdictrus = config.convert.get("convert_chars_to_rus")
-# convertdicteng = eval(config.get("DEFAULT", "convert_chars_to_eng"))
 convertdicteng = dict((v, k) for k, v in convertdictrus.items())
 
 rus = ['а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х',
@@ -25,8 +15,6 @@ eng = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o'
        'w', 'x', 'y', 'z', 'о', "а", "с"]
 onlyRus = ['я', 'й', 'ц', 'б', 'ж', 'з', 'д', 'л', 'ф', 'ш', 'щ', "ч", "ъ", "ь", "э", "ю", 'г']
 onlyEng = ['q', 'w', 'f', 'i', 'j', 'l', 'z', 's', 'v', 'g']
-
-import difflib
 
 from nltk.corpus import words
 

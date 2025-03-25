@@ -1,34 +1,30 @@
 import ast
-import glob
 import os
 import re
 import shutil
 import subprocess
-import warnings
 from pathlib import Path, PurePath
-from typing import Any, Iterable
 from sys import platform
-import sys
+from typing import Any, Iterable
+from typing import Union
 
 import fitz
-
-from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdf_broken_encoding_reader.model import Model
-import dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdf_broken_encoding_reader.config as config
-from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdf_broken_encoding_reader.pdf_worker import pdf_text_correcter
-from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdf_broken_encoding_reader import functions
-from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdf_broken_encoding_reader.functions import junk_string, correctly_resize
-
-from pdfminer.converter import PDFPageAggregator, TextConverter
-from pdfminer.layout import LAParams, LTChar, LTPage, LTTextBox, LTTextBoxHorizontal, LTTextBoxVertical, \
-    LTTextLineHorizontal
+from fontTools.ttLib import TTFont
+from pdfminer.converter import PDFPageAggregator
+from pdfminer.layout import LAParams, LTChar, LTTextLineHorizontal
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdftypes import resolve1
 from pdfminer.psparser import PSLiteral
-from typing import Union
-from fontTools.ttLib import TTFont
+
+import dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdf_broken_encoding_reader.config as config
+from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdf_broken_encoding_reader import functions
+from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdf_broken_encoding_reader.functions import junk_string, \
+    correctly_resize
+from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdf_broken_encoding_reader.model import Model
+from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdf_broken_encoding_reader.pdf_worker import pdf_text_correcter
 
 
 class PDFReader:

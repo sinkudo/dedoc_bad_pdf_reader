@@ -34,6 +34,7 @@ from dedoc.readers.pdf_reader.data_classes.text_with_bbox import TextWithBBox
 from dedoc.readers.pdf_reader.data_classes.word_with_bbox import WordWithBBox
 from dedoc.readers.pdf_reader.pdf_base_reader import ParametersForParseDoc
 from dedoc.readers.pdf_reader.pdf_base_reader import PdfBaseReader
+from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdf_broken_encoding_reader.pdf_worker.pdf_reader import PDFReader
 from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdfminer_reader.pdfminer_utils import create_bbox, draw_annotation
 from dedoc.utils.parameter_utils import get_path_param
 from dedoc.utils.pdf_utils import get_page_image
@@ -41,12 +42,6 @@ from dedoc.utils.pdf_utils import get_page_image
 #########################################
 logging.getLogger("pdfminer").setLevel(logging.ERROR)
 WordObj = namedtuple("Word", ["start", "end", "value"])
-
-# my_proj_path = "D:\\laboratory-repository\\text-extraction\\pdf-complex-background-text-extraction"
-# sys.path.insert(0, my_proj_path)
-
-# from pdf_worker.pdf_reader import PDFReader
-from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdf_broken_encoding_reader.pdf_worker.pdf_reader import PDFReader
 
 class PdfBrokenEncodingReader(PdfBaseReader):
     """
@@ -56,15 +51,15 @@ class PdfBrokenEncodingReader(PdfBaseReader):
     For more information, look to `pdf_with_text_layer` option description in :ref:`pdf_handling_parameters`.
     """
 
-    def __init__(self, *, config: Optional[dict] = None) -> None:
+    def __init__(self, *, model_lang: str = 'ruseng', config: Optional[dict] = None) -> None:
         from dedoc.extensions import recognized_extensions, recognized_mimes
-
         super().__init__(config=config, recognized_extensions=recognized_extensions.pdf_like_format,
                          recognized_mimes=recognized_mimes.pdf_like_format)
 
         from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdfminer_reader.pdfminer_extractor import PdfminerExtractor
         self.extractor_layer = PdfminerExtractor(config=self.config)
         self.fonts = []
+        self.model_lang = model_lang
 
     def can_read(self, file_path: Optional[str] = None, mime: Optional[str] = None, extension: Optional[str] = None,
                  parameters: Optional[dict] = None) -> bool:
@@ -103,7 +98,7 @@ class PdfBrokenEncodingReader(PdfBaseReader):
         )
 
         # unstructured_document = super().read(file_path, parameters)
-        reader = PDFReader.load_default_model("ruseng")
+        reader = PDFReader.load_default_model(self.model_lang)
         pages, layouts = reader.get_correct_layout(file_path)
         tables = []
         lines = []
