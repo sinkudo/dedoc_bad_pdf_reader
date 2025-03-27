@@ -59,7 +59,6 @@ class PdfBrokenEncodingReader(PdfBaseReader):
 
         from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdfminer_reader.pdfminer_extractor import PdfminerExtractor
         self.extractor_layer = PdfminerExtractor(config=self.config)
-        self.fonts = []
 
     def can_read(self, file_path: Optional[str] = None, mime: Optional[str] = None, extension: Optional[str] = None,
                  parameters: Optional[dict] = None) -> bool:
@@ -72,8 +71,9 @@ class PdfBrokenEncodingReader(PdfBaseReader):
         Look to the documentation of :meth:`~dedoc.readers.BaseReader.can_read` to get information about the method's parameters.
         """
         from dedoc.utils.parameter_utils import get_param_pdf_with_txt_layer
+
         return super().can_read(file_path=file_path, mime=mime, extension=extension) and get_param_pdf_with_txt_layer(
-            parameters) == "true"
+            parameters) == "bad_encoding_reader"
 
     def read(self, file_path: str, parameters: Optional[dict] = None) -> UnstructuredDocument:
 

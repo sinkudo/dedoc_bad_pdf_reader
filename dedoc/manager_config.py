@@ -74,10 +74,10 @@ def _get_manager_config(config: dict) -> dict:
         PdfAutoReader(config=config),
         PdfTabbyReader(config=config),
         PdfTxtlayerReader(config=config),
+        PdfBrokenEncodingReader(config=config),
         PdfImageReader(config=config),
         EmailReader(config=config),
-        MhtmlReader(config=config),
-        PdfBrokenEncodingReader(config=config)
+        MhtmlReader(config=config)
     ]
 
     metadata_extractors = [
