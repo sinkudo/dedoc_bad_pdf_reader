@@ -34,14 +34,14 @@ from dedoc.readers.pdf_reader.data_classes.text_with_bbox import TextWithBBox
 from dedoc.readers.pdf_reader.data_classes.word_with_bbox import WordWithBBox
 from dedoc.readers.pdf_reader.pdf_base_reader import ParametersForParseDoc
 from dedoc.readers.pdf_reader.pdf_base_reader import PdfBaseReader
-from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdf_broken_encoding_reader.pdf_worker.pdf_reader import PDFReader
 from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdfminer_reader.pdfminer_utils import create_bbox, draw_annotation
+from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdf_broken_encoding_reader.pdf_worker.pdf_reader import PDFReader
 from dedoc.utils.parameter_utils import get_path_param
 from dedoc.utils.pdf_utils import get_page_image
 
-#########################################
 logging.getLogger("pdfminer").setLevel(logging.ERROR)
 WordObj = namedtuple("Word", ["start", "end", "value"])
+
 
 class PdfBrokenEncodingReader(PdfBaseReader):
     """
@@ -51,15 +51,15 @@ class PdfBrokenEncodingReader(PdfBaseReader):
     For more information, look to `pdf_with_text_layer` option description in :ref:`pdf_handling_parameters`.
     """
 
-    def __init__(self, *, model_lang: str = 'ruseng', config: Optional[dict] = None) -> None:
+    def __init__(self, *, config: Optional[dict] = None) -> None:
         from dedoc.extensions import recognized_extensions, recognized_mimes
+
         super().__init__(config=config, recognized_extensions=recognized_extensions.pdf_like_format,
                          recognized_mimes=recognized_mimes.pdf_like_format)
 
         from dedoc.readers.pdf_reader.pdf_txtlayer_reader.pdfminer_reader.pdfminer_extractor import PdfminerExtractor
         self.extractor_layer = PdfminerExtractor(config=self.config)
         self.fonts = []
-        self.model_lang = model_lang
 
     def can_read(self, file_path: Optional[str] = None, mime: Optional[str] = None, extension: Optional[str] = None,
                  parameters: Optional[dict] = None) -> bool:
@@ -98,7 +98,10 @@ class PdfBrokenEncodingReader(PdfBaseReader):
         )
 
         # unstructured_document = super().read(file_path, parameters)
-        reader = PDFReader.load_default_model(self.model_lang)
+        try:
+            reader = PDFReader.load_default_model("ruseng")
+        except Exception as e:
+            raise Exception(f"some problem occured: {e}")
         pages, layouts = reader.get_correct_layout(file_path)
         tables = []
         lines = []
@@ -107,7 +110,6 @@ class PdfBrokenEncodingReader(PdfBaseReader):
             unreadable_blocks = [location.bbox for table in tables for location in table.locations]
             page_bb.bboxes = [bbox for bbox in page_bb.bboxes if
                               not self._inside_any_unreadable_block(bbox.bbox, unreadable_blocks)]
-            # lines = self.metadata_extractor.extract_metadata_and_set_annotations(page_with_lines=page_bb, call_classifier=False)
             lines += self.metadata_extractor.extract_metadata_and_set_annotations(page_with_lines=page_bb,
                                                                                   call_classifier=False)
 
@@ -130,11 +132,8 @@ class PdfBrokenEncodingReader(PdfBaseReader):
         else:
             tables = []
 
-        # lines = self.metadata_extractor.extract_metadata_and_set_annotations(page_with_lines=page, call_classifier=False)
         reader = PDFReader.load_default_model("ruseng")
-        ## получаю layouts от своего (в layouts pages)
         layout = reader.get_correct_layout(path)
-        # lines = LineWithLocation(line='CHECK', annotations=None, metadata=None, location=Location(None,None))
 
         lines = []
         # в цикле из pages с помощью metadata_extractor.py достаю bbox
@@ -145,20 +144,10 @@ class PdfBrokenEncodingReader(PdfBaseReader):
                               not self._inside_any_unreadable_block(bbox.bbox, unreadable_blocks)]
             lines.append(self.metadata_extractor.extract_metadata_and_set_annotations(page_with_lines=page_bb,
                                                                                       call_classifier=False))
-
-        # формирую lines с get_line_with_meta.
-        # возвращаю
         return lines, tables, page.attachments, []
 
     def __handle_page(self, page: PDFPage, page_number: int, path: str,
                       parameters: ParametersForParseDoc, layout) -> PageWithBBox:
-
-        # device, interpreter = self.__get_interpreter()
-        # try:
-        #     interpreter.process_page(page)
-        # except Exception as e:
-        #     raise BadFileFormatError(f"can't handle file {path} get {e}")
-
         image_page = self.__get_image(path=path, page_num=page_number)
         image_height, image_width, *_ = image_page.shape
 

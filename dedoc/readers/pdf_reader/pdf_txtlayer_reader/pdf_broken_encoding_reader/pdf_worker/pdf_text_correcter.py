@@ -146,4 +146,3 @@ def correct_text_str(text):
 
 def remove_redundant_whitespaces(text):
     return ' '.join(text.split())
-

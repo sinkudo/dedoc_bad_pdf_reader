@@ -7,7 +7,6 @@ import cv2
 import keras
 import numpy as np
 import tensorflow as tf
-
 from keras import layers
 from keras.callbacks import TensorBoard
 from keras.models import load_model
@@ -82,13 +81,10 @@ class Model:
 
         self.model = tf_keras_model if tf_keras_model is not None else Model.__set_model(image_size, num_classes)
         self.model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
-        # self.model.fit(train_ds, validation_data=val_ds, test_ds=test_ds, batch_size=batch_size, epochs=epochs, callbacks=[tensorboard])
         self.model.fit(train_ds, validation_data=val_ds, batch_size=batch_size, epochs=epochs, callbacks=[tensorboard])
         test_loss, test_accuracy = self.model.evaluate(test_ds)
-        print(test_loss, test_accuracy)
         self.labels = train_ds.class_names
 
-        print(self.model.layers[-1].output_shape)
 
     @staticmethod
     def __set_model(image_size: tuple, num_classes: int) -> keras.Sequential:
@@ -137,7 +133,6 @@ class Model:
         return train_ds, validation_ds, test_ds
 
     def recognize_glyph(self, images):
-        # Преобразуем все изображения в numpy массив
         images_readen = []
         for png in images:
             stream = open(png, "rb")
@@ -146,14 +141,11 @@ class Model:
             img = cv2.imdecode(numpyarray, cv2.IMREAD_UNCHANGED)
             images_readen.append(np.array(img).reshape(28, 28, 1))
 
-        # Преобразуем список изображений в numpy массив
         images_readen = np.array(images_readen)
 
-        # Используем predict для батча
         probs = self.model.predict(images_readen, verbose=0)
         problabels = probs.argmax(axis=-1)
 
-        # Получаем предсказания для каждого изображения
         predictions = [self.labels[label] for label in problabels]
 
         return predictions
@@ -164,11 +156,7 @@ class Model:
         if os.path.exists(model_save_path):
             shutil.rmtree(model_save_path)
         os.makedirs(model_save_path)
-        # self.model.save(model_save_path.joinpath(name, 'h5'))
         self.model.save(model_save_path.joinpath(f'{name}.h5'))
-        print(self.labels)
         char_labels = [chr(int(i)) for i in self.labels]
-        print(char_labels)
-        # with open(model_save_path.joinpath(name, 'json'), 'w') as f:
         with open(model_save_path.joinpath(f'{name}.json'), 'w') as f:
             json.dump(char_labels, f)

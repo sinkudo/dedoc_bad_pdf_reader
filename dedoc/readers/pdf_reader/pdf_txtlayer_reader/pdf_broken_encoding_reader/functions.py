@@ -50,7 +50,6 @@ def extract_pdf_text2json(pdf_path: Path, pages: tuple = None):
     assert len(pages) == 2, "pages should be of len 2"
     assert pages[0] == pages[1] == 0 or pages[0] < pages[1], "wrong range"
     pages_range = list(range(pages[0], pages[1]))
-    # ic(pages_range)
     pdf_path = os.path.normpath(pdf_path)
     pdf_name = pdf_path.split('\\')[-1].split('.')[0]
     json_path = os.path.normpath(f'{get_project_root()}/data/jsons/{pdf_name}.json')
@@ -58,7 +57,6 @@ def extract_pdf_text2json(pdf_path: Path, pages: tuple = None):
     text = extract_text(pdf_path, page_numbers=pages_range)
     text = collapse_text(text)
     text = remove_hyphenations(text)
-    # ic(text)
     json_dict = {"pages": pages, "text": text}
     with open(json_path, 'w', encoding='utf-8') as file:
         json.dump(json_dict, file, indent=4, ensure_ascii=False)

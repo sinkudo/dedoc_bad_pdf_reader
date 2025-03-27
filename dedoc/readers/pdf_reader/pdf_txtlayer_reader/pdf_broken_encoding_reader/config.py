@@ -53,7 +53,6 @@ other = dict(
 convert = dict(
     convert_chars_to_rus={"a": "а", "b": "в", 'c': 'с', 'd': 'д', 'e': 'е', "h": "н", 'k': 'к', 'm': 'м', 'o': 'о',
                           'p': 'р', 'r': 'г', 'y': 'у', "t": "т", "u": "и", 'x': 'х', },
-    # convert_chars_to_eng={"а": "a", "в": "b", "с": "c", "д"}
 )
 
 folders = dict(
@@ -74,10 +73,6 @@ default_models = [i.split('\\')[-1].split('.')[0] for i in
                   glob.glob(os.path.join(folders.get('default_models_folder'), "*.h5"))]
 
 
-# print(default_models)
-# default_models_and_labels = {i: {"model_name": i + ".h5", "labels": sorted([str(ord(c)) for c in char_pool.get(i)])} for
-#                              i in default_models}
-
 
 def chars_to_code(char_list: list):
     return [ord(i) for i in char_list]
@@ -95,22 +90,19 @@ class Language(enum.Enum):
 class DefaultModel(enum.Enum):
     Russian_and_English = {'model': load_model(Path(folders['default_models_folder'], 'rus_eng.h5')),
                            'labels': Language.Russian_and_English.value}
-
-    # Russian = {'model': load_model(Path(folders['default_models_folder'], 'rus_no_reg_diff.keras')),
-    #            'labels': Language.Russian_no_reg_diff.value}
-    # English = {'model': load_model(Path(folders['default_models_folder'], 'eng_no_reg_diff.keras')),
-    #            'labels': Language.English_no_reg_diff.value}
+    Russian = {'model': load_model(Path(folders['default_models_folder'], 'rus.h5')),
+               'labels': Language.Russian_no_reg_diff.value}
+    English = {'model': load_model(Path(folders['default_models_folder'], 'eng.h5')),
+               'labels': Language.English_no_reg_diff.value}
 
     @classmethod
     def from_string(cls, model_name: str):
         mapping = {
             "ruseng": cls.Russian_and_English,
-            # "rus": cls.Russian,
-            # "eng": cls.English
+            "rus": cls.Russian,
+            "eng": cls.English
         }
         try:
             return mapping[model_name.lower()]
         except KeyError:
             raise ValueError(f"Incorrect model_name (rus, eng, ruseng)")
-
-# russian_words = set()
